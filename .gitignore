@@ -1,5 +1,6 @@
 # initial - no remote state for terraform
-terraform.tfstate
+terraform.tfstate*
+
 # no terraform cruft.  why isn't state in this folder..
 .terraform
 # bad idea to store keys locally.  Worse to check them in to source control
@@ -11,3 +12,6 @@ terraform.tfstate
 # vim <3
 .*.sw?
 *.sw?
+
+# don't ask!
+fredfile*
