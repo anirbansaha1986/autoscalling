@@ -5,6 +5,9 @@ terraform.tfstate
 # bad idea to store keys locally.  Worse to check them in to source control
 .keys
 
+# local stuff
+.output
+
 # vim <3
 .*.sw?
 *.sw?
