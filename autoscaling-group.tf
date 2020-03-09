@@ -1,57 +1,49 @@
-provider "aws" {
-  profile = "default"
-  region  = "us-west-2"
-  version = "~> 2.52"
-}
-
-/*
-resource "aws_launch_template" "large" {
-  name_prefix = "large"
-  image_id = "${data.aws_ami.example.id}"
-  instance_type = "t2.large"
-}
-resource "aws_launch_template" "medium" {
-  name_prefix = "medium"
-  image_id = "${data.aws_ami.example.id}"
-  instance_type = "t2.medium"
-}
-resource "aws_launch_template" "small" {
-  name_prefix = "small"
-  image_id = "${data.aws_ami.example.id}"
-  instance_type = "t2.small"
-}
-*/
-resource "aws_placement_group" "etcd" {
-  name     = "etcd_placement_group"
-  strategy = "partition"
-}
 resource "aws_autoscaling_group" "etcd" {
-  availability_zones = var.availability_zones
-  desired_capacity   = var.etcd.desired
-  max_size           = var.etcd.max
-  min_size           = var.etcd.min
-
+  name = "etcd"
+  availability_zones = [ "us-west-2a" ]
+  default_cooldown = 300
+  desired_capacity = 3
+  enabled_metrics = [
+    "GroupDesiredCapacity",
+    "GroupInServiceCapacity",
+    "GroupInServiceInstances",
+    "GroupMaxSize",
+    "GroupMinSize",
+    "GroupPendingCapacity",
+    "GroupPendingInstances",
+    "GroupStandbyCapacity",
+    "GroupStandbyInstances",
+    "GroupTerminatingCapacity",
+    "GroupTerminatingInstances",
+    "GroupTotalCapacity",
+    "GroupTotalInstances"
+  ]
+  health_check_grace_period = 300
+  health_check_type = "EC2"
+  max_size = 5
+  metrics_granularity = "1Minute"
+  min_size = 3
   mixed_instances_policy {
+    instances_distribution {
+      on_demand_allocation_strategy = "prioritized"
+      on_demand_percentage_above_base_capacity = 70
+      spot_allocation_strategy = "lowest-price"
+    }
     launch_template {
       launch_template_specification {
         launch_template_id = aws_launch_template.etcd.id
-        version = aws_launch_template.etcd.latest_version
+        version = "$Latest"
       }
-
+      override {
+        instance_type = "t2.small"
+        weighted_capacity = "1"
+      }
       override {
         instance_type = "t2.medium"
         weighted_capacity = "2"
       }
-
-      override {
-        instance_type = "t2.large"
-        weighted_capacity = "3"
-      }
-
-    }
-
-    instances_distribution {
-      on_demand_base_capacity = 3
     }
   }
+  protect_from_scale_in = false
+  vpc_zone_identifier = [ "subnet-aa880ccf" ]
 }

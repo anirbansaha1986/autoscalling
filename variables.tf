@@ -9,7 +9,7 @@ variable etcd {
     desired  = 3,
     min      = 3,
     max      = 3,
-    ami      = "ami-0b199ce4c7f1a6dd2"
+    ami      = "ami-0d1cd67c26f5fca19"
   }
 }
 variable availability_zones {
